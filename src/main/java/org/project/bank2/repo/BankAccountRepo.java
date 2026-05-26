@@ -3,8 +3,14 @@ package org.project.bank2.repo;
 import org.project.bank2.model.BankAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BankAccountRepo extends JpaRepository<BankAccount, Long> {
     Optional<BankAccount> findByAccountNumber( String accountNumber);
+
+    boolean existsByAccountNumber(String accountNumber);
+
+    List<BankAccount> findByUserId(Long userId);
+
 }

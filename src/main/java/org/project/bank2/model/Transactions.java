@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.Transaction;
+
 import org.project.bank2.enums.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Entity
 @Table(name = "transactions")
