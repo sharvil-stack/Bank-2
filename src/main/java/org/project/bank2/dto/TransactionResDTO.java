@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class TransactionResDTO {
     private Long id;
+    private String accountNumber;
     private BigDecimal amount;
     private String type;
     private String description;

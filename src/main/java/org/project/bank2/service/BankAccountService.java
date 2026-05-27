@@ -1,6 +1,8 @@
 package org.project.bank2.service;
 
+import org.project.bank2.dto.BankAccountResDTO;
 import org.project.bank2.enums.Status;
+import org.project.bank2.exception.ResourceNotFoundException;
 import org.project.bank2.model.BankAccount;
 import org.project.bank2.model.User;
 import org.project.bank2.repo.BankAccountRepo;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BankAccountService {
@@ -20,19 +23,24 @@ public class BankAccountService {
     @Autowired
     private UserRepo userRepo;
 
-    public BankAccount getBankAccountById(Long id)
-    {
-        return bankAccountRepo.findById(id).orElseThrow(()-> new RuntimeException("Account Not Found"));
+    public BankAccountResDTO getBankAccountById(Long id) {
+
+        BankAccount bankAccount = bankAccountRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + id + " not found!"));
+
+        return mapToResponse(bankAccount);
     }
-    public BankAccount getBankAccountByNumber(String accountNumber)
-    {
-        return bankAccountRepo.findByAccountNumber(accountNumber)
-                .orElseThrow(() ->
-                        new RuntimeException("Account not found"));
+    public BankAccountResDTO getBankAccountByNumber(String accountNumber) {
+
+        BankAccount bankAccount = bankAccountRepo
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
+
+        return mapToResponse(bankAccount);
     }
 
-    public BankAccount createBankAccount(Long userId) {
-       User user = userRepo.findById(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+    public BankAccountResDTO createBankAccount(BankAccountResDTO dto) {
+       User user = userRepo.findById(dto.getId()).orElseThrow(()-> new RuntimeException("User Not Found"));
        BankAccount bankAccount = new BankAccount();
        bankAccount.setUser(user);
        bankAccount.setAccountNumber(generateAccountNumber());
@@ -40,7 +48,8 @@ public class BankAccountService {
        bankAccount.setStatus(Status.ACTIVE);
        bankAccount.setCreatedAt(LocalDateTime.now());
 
-       return bankAccountRepo.save(bankAccount);
+       BankAccount savedBankAccount = bankAccountRepo.save(bankAccount);
+       return mapToResponse(savedBankAccount);
     }
 
     private String generateAccountNumber() {
@@ -63,21 +72,45 @@ public class BankAccountService {
         return bankAccountRepo.existsByAccountNumber(accountNumber);
     }
 
-    public BankAccount activateAccount(String accountNumber) {
-        BankAccount bankAccount = getBankAccountByNumber(accountNumber);
+    public BankAccountResDTO activateAccount(String accountNumber) {
+
+        BankAccount bankAccount = bankAccountRepo
+                .findByAccountNumber(accountNumber)
+                        .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
+
         bankAccount.setStatus(Status.ACTIVE);
 
-        return bankAccountRepo.save(bankAccount);
+        return mapToResponse(bankAccountRepo.save(bankAccount));
     }
 
-    public BankAccount closeAccount(String accountNumber) {
-        BankAccount bankAccount = getBankAccountByNumber(accountNumber);
+    public BankAccountResDTO closeAccount(String accountNumber) {
+
+        BankAccount bankAccount = bankAccountRepo
+                .findByAccountNumber(accountNumber)
+                        .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
         bankAccount.setStatus(Status.CLOSED);
-        return bankAccountRepo.save(bankAccount);
+
+        return mapToResponse(bankAccountRepo.save(bankAccount));
     }
 
-    public List<BankAccount> getAllBankAccounts() {
-        return bankAccountRepo.findAll();
+    public List<BankAccountResDTO> getAllBankAccounts() {
+
+        return bankAccountRepo.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
+    private BankAccountResDTO mapToResponse(BankAccount bankAccount) {
+
+        BankAccountResDTO dto = new BankAccountResDTO();
+
+        dto.setId(bankAccount.getId());
+        dto.setAccountNumber(bankAccount.getAccountNumber());
+        dto.setBalance(bankAccount.getBalance());
+        dto.setStatus(bankAccount.getStatus().name());
+        dto.setCreatedAt(bankAccount.getCreatedAt());
+
+        return dto;
+    }
 }
