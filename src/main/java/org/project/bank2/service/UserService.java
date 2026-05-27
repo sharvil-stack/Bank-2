@@ -5,6 +5,7 @@ import org.project.bank2.dto.UserresDTO;
 import org.project.bank2.model.User;
 import org.project.bank2.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,9 @@ public class UserService {
     @Autowired
     private  UserRepo userRepo;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     public UserresDTO createUser(UserReqDTO dto)
     {
         User user = new User();
@@ -22,7 +26,7 @@ public class UserService {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole("USER");
 
         User savedUser = userRepo.save(user);
