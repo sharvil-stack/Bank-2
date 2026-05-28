@@ -1,7 +1,10 @@
 package org.project.bank2.controller;
 
 
+import jakarta.validation.Valid;
+import org.project.bank2.dto.TransactionReqDTO;
 import org.project.bank2.dto.TransactionResDTO;
+import org.project.bank2.dto.TransferReqDTO;
 import org.project.bank2.service.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,34 +24,36 @@ public class TransactionsController {
 
     @PostMapping("/deposit")
     public ResponseEntity<TransactionResDTO> deposit(
-            @RequestParam String accountNumber,
-            @RequestParam BigDecimal amount) {
+            @Valid @RequestBody TransactionReqDTO dto) {
 
         return ResponseEntity.ok(
-                transactionsService.deposit(accountNumber, amount)
+                transactionsService.deposit(
+                        dto.getAccountNumber(),
+                        dto.getAmount()
+                )
         );
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResDTO> withdraw(
-            @RequestParam String accountNumber,
-            @RequestParam BigDecimal amount) {
+            @Valid @RequestBody TransactionReqDTO dto) {
 
         return ResponseEntity.ok(
-                transactionsService.withdraw(accountNumber, amount)
+                transactionsService.withdraw(
+                        dto.getAccountNumber(),
+                        dto.getAmount()
+                )
         );
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(
-            @RequestParam String fromAccount,
-            @RequestParam String toAccount,
-            @RequestParam BigDecimal amount) {
+            @Valid @RequestBody TransferReqDTO dto) {
 
         transactionsService.transfer(
-                fromAccount,
-                toAccount,
-                amount
+                dto.getFromAccount(),
+                dto.getToAccount(),
+                dto.getAmount()
         );
 
         return ResponseEntity.ok("Transfer successful");

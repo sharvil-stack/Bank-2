@@ -1,5 +1,6 @@
 package org.project.bank2.controller;
 
+import org.project.bank2.dto.BankAccountReqDTO;
 import org.project.bank2.dto.BankAccountResDTO;
 import org.project.bank2.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,14 @@ public class BankAccountController {
     @Autowired
     private BankAccountService bankAccountService;
 
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<BankAccountResDTO> createBankAccount(@RequestBody BankAccountResDTO dto){
+    @PostMapping("/create")
+    public ResponseEntity<BankAccountResDTO>
+    createBankAccount(
+            @RequestBody BankAccountReqDTO dto) {
 
-        return ResponseEntity.ok(bankAccountService.createBankAccount(dto));
+        return ResponseEntity.ok(
+                bankAccountService.createBankAccount(dto)
+        );
     }
     @GetMapping("/{accountNumber}")
     public ResponseEntity<BankAccountResDTO> getAccount(
@@ -28,7 +33,7 @@ public class BankAccountController {
         );
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<BankAccountResDTO> getAccountById(
             @PathVariable Long id) {
 

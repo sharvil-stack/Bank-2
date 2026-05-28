@@ -1,5 +1,6 @@
 package org.project.bank2.service;
 
+import org.project.bank2.dto.BankAccountReqDTO;
 import org.project.bank2.dto.BankAccountResDTO;
 import org.project.bank2.enums.Status;
 import org.project.bank2.exception.ResourceNotFoundException;
@@ -39,8 +40,8 @@ public class BankAccountService {
         return mapToResponse(bankAccount);
     }
 
-    public BankAccountResDTO createBankAccount(BankAccountResDTO dto) {
-       User user = userRepo.findById(dto.getId()).orElseThrow(()-> new RuntimeException("User Not Found"));
+    public BankAccountResDTO createBankAccount(BankAccountReqDTO dto) {
+       User user = userRepo.findById(dto.getUserId()).orElseThrow(()-> new RuntimeException("User Not Found"));
        BankAccount bankAccount = new BankAccount();
        bankAccount.setUser(user);
        bankAccount.setAccountNumber(generateAccountNumber());
@@ -105,7 +106,7 @@ public class BankAccountService {
 
         BankAccountResDTO dto = new BankAccountResDTO();
 
-        dto.setId(bankAccount.getId());
+        dto.setUserId(bankAccount.getUser().getId());
         dto.setAccountNumber(bankAccount.getAccountNumber());
         dto.setBalance(bankAccount.getBalance());
         dto.setStatus(bankAccount.getStatus().name());

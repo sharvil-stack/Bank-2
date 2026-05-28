@@ -62,9 +62,12 @@ public class UserService {
         return dto;
     }
 
-    public List<User> getAllUsers()
-    {
-        return userRepo.findAll();
+    public List<UserresDTO> getAllUsers() {
+
+        return userRepo.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     public UserresDTO updateUser(Long id, UserReqDTO updatedUser)
