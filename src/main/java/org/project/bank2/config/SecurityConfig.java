@@ -32,15 +32,39 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/login",
-                                "/auth/register").permitAll()
-                        .anyRequest().authenticated()
 
-                ).sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers(
+                                "/auth/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/users/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/accounts/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
+                        .requestMatchers(
+                                "/transactions/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
+                        .anyRequest().authenticated()
+                )
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
+                )
+
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
-
 }
