@@ -1,6 +1,7 @@
 package org.project.bank2.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
@@ -25,5 +26,6 @@ public class User {
     private String role;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<BankAccount> bankAccounts;
 }
