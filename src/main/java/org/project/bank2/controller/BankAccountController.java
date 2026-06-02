@@ -15,6 +15,7 @@ public class BankAccountController {
     @Autowired
     private BankAccountService bankAccountService;
 
+
     @PostMapping("/create")
     public ResponseEntity<BankAccountResDTO>
     createBankAccount(
@@ -24,7 +25,7 @@ public class BankAccountController {
                 bankAccountService.createBankAccount(dto)
         );
     }
-    @GetMapping("/{accountNumber}")
+    @GetMapping("/number/{accountNumber}")
     public ResponseEntity<BankAccountResDTO> getAccount(
             @PathVariable String accountNumber) {
 
@@ -33,7 +34,7 @@ public class BankAccountController {
         );
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<BankAccountResDTO> getAccountById(
             @PathVariable Long id) {
 
@@ -69,13 +70,6 @@ public class BankAccountController {
         );
     }
 
-    @GetMapping("/{accountNumber}/exists")
-    public ResponseEntity<Boolean> exists(
-            @PathVariable String accountNumber) {
 
-        return ResponseEntity.ok(
-                bankAccountService.existsByAccountNumber(accountNumber)
-        );
-    }
 }
 

@@ -35,23 +35,26 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(
-                                "/auth/**"
-                        ).permitAll()
+                        .requestMatchers("/auth/**")
+                        .permitAll()
+
+                        .requestMatchers("/users/**")
+                        .hasRole("ADMIN")
 
                         .requestMatchers(
-                                "/users/**"
-                        ).hasRole("ADMIN")
+                                "/accounts/*/activate",
+                                "/accounts/*/close"
+                        )
+                        .hasRole("ADMIN")
 
-                        .requestMatchers(
-                                "/accounts/**"
-                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/accounts/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers(
-                                "/transactions/**"
-                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/transactions/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
 
                 .sessionManagement(session ->

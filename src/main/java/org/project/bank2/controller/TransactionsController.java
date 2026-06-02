@@ -78,6 +78,16 @@ public class TransactionsController {
                 transactionsService.getRecentTransactions(accountNumber)
         );
     }
+    @GetMapping("/id/{transactionId}")
+    public ResponseEntity<TransactionResDTO>
+    getTransactionById(
+            @PathVariable Long transactionId) {
+
+        return ResponseEntity.ok(
+                transactionsService
+                        .getTransactionById(transactionId)
+        );
+    }
 
     @GetMapping("/{accountNumber}/statement")
     public ResponseEntity<List<TransactionResDTO>>

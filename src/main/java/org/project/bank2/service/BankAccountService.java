@@ -69,9 +69,6 @@ public class BankAccountService {
         return accountNumber;
     }
 
-    public boolean existsByAccountNumber(String accountNumber) {
-        return bankAccountRepo.existsByAccountNumber(accountNumber);
-    }
 
     public BankAccountResDTO activateAccount(String accountNumber) {
 
@@ -91,10 +88,17 @@ public class BankAccountService {
 
     public List<BankAccountResDTO> getAllBankAccounts() {
 
-        return bankAccountRepo.findAll()
+        User currentUser = getCurrentUser();
+        if(currentUser.getRole().equals("ADMIN")){
+            return bankAccountRepo.findAll()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        }
+        return bankAccountRepo.findByUserId(currentUser.getId())
                 .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BankAccountResDTO mapToResponse(BankAccount bankAccount) {
@@ -127,6 +131,9 @@ public class BankAccountService {
 
         BankAccount bankAccount = bankAccountRepo.findByAccountNumber(accountNumber)
                 .orElseThrow(()-> new RuntimeException("Bank Account with id: " + accountNumber + " not found!"));
+        if(currentUser.getRole().equals("ADMIN")){
+            return bankAccount;
+        }
 
         if(!bankAccount.getUser().getId().equals(currentUser.getId())){
             throw new RuntimeException("Current user is not the owner of this account");
