@@ -3,14 +3,19 @@ package org.project.bank2.service;
 import jakarta.transaction.Transactional;
 
 import org.project.bank2.dto.TransactionResDTO;
+import org.project.bank2.enums.Status;
 import org.project.bank2.enums.TransactionType;
 import org.project.bank2.exception.BadRequestException;
 import org.project.bank2.exception.ResourceNotFoundException;
 import org.project.bank2.model.BankAccount;
 import org.project.bank2.model.Transactions;
+import org.project.bank2.model.User;
 import org.project.bank2.repo.BankAccountRepo;
 import org.project.bank2.repo.TransactionRepo;
+import org.project.bank2.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +31,9 @@ public class TransactionsService {
     @Autowired
     private TransactionRepo transactionRepo;
 
+    @Autowired
+    private UserRepo userRepo;
+
     public TransactionResDTO deposit(
             String accountNumber,
             BigDecimal amount) {
@@ -33,8 +41,10 @@ public class TransactionsService {
        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
            throw new BadRequestException("Amount must be greater than zero!");
        }
-         BankAccount bankAccount = bankAccountRepo.findByAccountNumber(accountNumber).orElseThrow(()-> new IllegalArgumentException("Account number not found"));
+        BankAccount bankAccount =
+                getOwnedAccount(accountNumber);
 
+       validateAccountActive(bankAccount);
          bankAccount.setBalance(bankAccount.getBalance().add(amount));
          bankAccountRepo.save(bankAccount);
 
@@ -56,22 +66,30 @@ public class TransactionsService {
     public TransactionResDTO withdraw(
             String accountNumber,
             BigDecimal amount) {
-        BankAccount bankAccount = bankAccountRepo.findByAccountNumber(accountNumber).orElseThrow(()-> new IllegalArgumentException("Account number not found"));
+        BankAccount bankAccount = getOwnedAccount(accountNumber);
+        validateAccountActive(bankAccount);
         if(bankAccount.getBalance().compareTo(amount) < 0) {
-            throw new  BadRequestException("Amount must be greater than zero!");
+            throw new  BadRequestException("Insufficient Balance!");
+        }
+        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException(
+                    "Amount must be greater than zero!"
+            );
         }
 
-            BankAccount bAccount = bankAccountRepo.findByAccountNumber(accountNumber).orElseThrow(()-> new IllegalArgumentException("Account number not found"));
-            bankAccount.setBalance(bAccount.getBalance().subtract(amount));
-            bankAccountRepo.save(bAccount);
+        bankAccount.setBalance(
+                bankAccount.getBalance().subtract(amount)
+        );
 
-            Transactions transactions = new Transactions();
-            transactions.setAccount(bAccount);
+        bankAccountRepo.save(bankAccount);
+
+        Transactions transactions = new Transactions();
+            transactions.setAccount(bankAccount);
             transactions.setAmount(amount);
             transactions.setType(TransactionType.WITHDRAW);
             transactions.setCreatedAt(LocalDateTime.now());
             transactions.setDescription("Cash Withdrawal");
-        Transactions savedTransaction =
+            Transactions savedTransaction =
                 transactionRepo.save(transactions);
 
         return mapToResponse(savedTransaction);
@@ -87,13 +105,16 @@ public class TransactionsService {
             throw new IllegalArgumentException("From account number cannot be the same as to account number");
         }
 
-        BankAccount sender = bankAccountRepo
-                .findByAccountNumber(fromAccountNumber).orElseThrow(()-> new IllegalArgumentException("Account number not found"));
+        BankAccount sender = getOwnedAccount(fromAccountNumber);
         BankAccount reciever = bankAccountRepo
                 .findByAccountNumber(toAccountNumber).orElseThrow(()-> new IllegalArgumentException("Account number not found"));
 
         if(sender.getBalance().compareTo(amount) < 0)
             throw new BadRequestException("Insufficient balance!");
+
+        validateAccountActive(sender);
+        validateAccountActive(reciever);
+
 
         sender.setBalance(sender.getBalance().subtract(amount));
         bankAccountRepo.save(sender);
@@ -120,8 +141,14 @@ public class TransactionsService {
 
     public List<TransactionResDTO> getTransactions(
             String accountNumber) {
+
+        BankAccount account =
+                getOwnedAccount(accountNumber);
+
         return transactionRepo
-                .findByAccountAccountNumber(accountNumber)
+                .findByAccountAccountNumber(
+                        account.getAccountNumber()
+                )
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -129,8 +156,9 @@ public class TransactionsService {
 
     public List<TransactionResDTO> getRecentTransactions(String accountNumber) {
 
-        if(!bankAccountRepo.existsByAccountNumber(accountNumber))
-            throw new RuntimeException("Account not found");
+        BankAccount account =
+                getOwnedAccount(accountNumber);
+
 
         return transactionRepo
                 .findTop10ByAccountAccountNumberOrderByCreatedAtDesc(accountNumber)
@@ -140,8 +168,8 @@ public class TransactionsService {
     }
 
     public List<TransactionResDTO> getStatement(String AccountNumber, LocalDateTime from, LocalDateTime to) {
-        if(!bankAccountRepo.existsByAccountNumber(AccountNumber))
-            throw new ResourceNotFoundException("Account number not found");
+        BankAccount account =
+                getOwnedAccount(AccountNumber);
 
         return transactionRepo
                 .findByAccountAccountNumberAndCreatedAtBetween(
@@ -155,9 +183,20 @@ public class TransactionsService {
     }
 
     public TransactionResDTO getTransactionById(Long transactionId) {
+
         Transactions transaction = transactionRepo.findById(transactionId)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Transaction not found"));
+        User currentUser = getCurrentUser();
+
+        if (!transaction.getAccount()
+                .getUser()
+                .getId()
+                .equals(currentUser.getId())) {
+
+            throw new RuntimeException(
+                    "You are not allowed to perform this operation");
+        }
 
         return mapToResponse(transaction);    }
 
@@ -175,6 +214,49 @@ public class TransactionsService {
         dto.setCreatedAt(transaction.getCreatedAt());
 
         return dto;
+    }
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+    }
+
+    private BankAccount getOwnedAccount(String accountNumber) {
+
+        User currentUser = getCurrentUser();
+
+        BankAccount account =
+                bankAccountRepo.findByAccountNumber(accountNumber)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Account not found"));
+        if (currentUser.getRole().equals("ADMIN")) {
+            return account;
+        }
+
+        if (!account.getUser()
+                .getId()
+                .equals(currentUser.getId())) {
+
+            throw new RuntimeException(
+                    "You are not allowed to access this account");
+        }
+
+        return account;
+    }
+
+    private void validateAccountActive(BankAccount account) {
+        if(account.getStatus() == Status.CLOSED) {
+            throw new BadRequestException("Account is closed");
+        }
     }
 
 }

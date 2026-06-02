@@ -9,6 +9,8 @@ import org.project.bank2.model.User;
 import org.project.bank2.repo.BankAccountRepo;
 import org.project.bank2.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,15 +35,13 @@ public class BankAccountService {
     }
     public BankAccountResDTO getBankAccountByNumber(String accountNumber) {
 
-        BankAccount bankAccount = bankAccountRepo
-                .findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
+      BankAccount bankAccount = getOwnedBankAccount(accountNumber);
 
         return mapToResponse(bankAccount);
     }
 
     public BankAccountResDTO createBankAccount(BankAccountReqDTO dto) {
-       User user = userRepo.findById(dto.getUserId()).orElseThrow(()-> new RuntimeException("User Not Found"));
+       User user = getCurrentUser();
        BankAccount bankAccount = new BankAccount();
        bankAccount.setUser(user);
        bankAccount.setAccountNumber(generateAccountNumber());
@@ -75,10 +75,7 @@ public class BankAccountService {
 
     public BankAccountResDTO activateAccount(String accountNumber) {
 
-        BankAccount bankAccount = bankAccountRepo
-                .findByAccountNumber(accountNumber)
-                        .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
-
+        BankAccount bankAccount = getOwnedBankAccount(accountNumber);
         bankAccount.setStatus(Status.ACTIVE);
 
         return mapToResponse(bankAccountRepo.save(bankAccount));
@@ -86,9 +83,7 @@ public class BankAccountService {
 
     public BankAccountResDTO closeAccount(String accountNumber) {
 
-        BankAccount bankAccount = bankAccountRepo
-                .findByAccountNumber(accountNumber)
-                        .orElseThrow(() -> new ResourceNotFoundException("Bank Account with id: " + accountNumber + " not found!"));
+        BankAccount bankAccount = getOwnedBankAccount(accountNumber);
         bankAccount.setStatus(Status.CLOSED);
 
         return mapToResponse(bankAccountRepo.save(bankAccount));
@@ -113,5 +108,30 @@ public class BankAccountService {
         dto.setCreatedAt(bankAccount.getCreatedAt());
 
         return dto;
+    }
+
+    private User getCurrentUser(){
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("User not found"));
+    }
+
+    private BankAccount getOwnedBankAccount(String accountNumber){
+        User currentUser = getCurrentUser();
+
+        BankAccount bankAccount = bankAccountRepo.findByAccountNumber(accountNumber)
+                .orElseThrow(()-> new RuntimeException("Bank Account with id: " + accountNumber + " not found!"));
+
+        if(!bankAccount.getUser().getId().equals(currentUser.getId())){
+            throw new RuntimeException("Current user is not the owner of this account");
+
+        }
+        return bankAccount;
     }
 }
