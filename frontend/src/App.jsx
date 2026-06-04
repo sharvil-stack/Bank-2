@@ -2,11 +2,23 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
-
+import Login from './pages/Login'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
-    <h1>Bank2 Frontend</h1>
+  <BrowserRouter>
+      <Routes>
+        <Route path="/"
+              element={<Login/>}
+         />
+         <Route path='/dashboard'
+                element={<Dashboard/>}
+          />
+      </Routes>
+
+  </BrowserRouter>
   )
 }
 
