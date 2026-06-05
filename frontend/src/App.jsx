@@ -5,6 +5,7 @@ import heroImg from './assets/hero.png'
 import Login from './pages/Login'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Dashboard from './pages/Dashboard'
+import ProtectedRoute from './routes/ProtectedRoute'
 
 function App() {
   return (
@@ -14,7 +15,11 @@ function App() {
               element={<Login/>}
          />
          <Route path='/dashboard'
-                element={<Dashboard/>}
+                element={
+                  <ProtectedRoute>
+                <Dashboard/>
+                </ProtectedRoute>
+              }
           />
       </Routes>
 
