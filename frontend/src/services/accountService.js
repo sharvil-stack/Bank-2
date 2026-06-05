@@ -17,3 +17,20 @@ export const getAccounts = async () => {
 
     return response.data
 }
+
+export const createAccount = async () => {
+
+    const token = localStorage.getItem("token")
+
+    const response = await axios.post(
+        BASE_URL + "/create",
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    return response.data
+}

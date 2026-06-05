@@ -1,14 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { getAccounts } from "../services/accountService"
+
+import {
+  getAccounts,
+  createAccount
+} from "../services/accountService"
 
 const Dashboard = () => {
 
   const navigate = useNavigate()
-const [accounts, setAccounts] = useState([])
-  const handleLogout=()=>{
+
+  const [accounts, setAccounts] = useState([])
+
+  const handleLogout = () => {
+
     localStorage.removeItem("token")
+
     navigate("/")
   }
 
@@ -16,57 +23,88 @@ const [accounts, setAccounts] = useState([])
 
     try {
 
-        const data = await getAccounts()
+      const data = await getAccounts()
 
-        setAccounts(data)
+      setAccounts(data)
+
     }
     catch(error) {
 
-        console.log(error)
+      console.log(error)
 
-        alert("Failed to fetch accounts")
+      alert("Failed to fetch accounts")
     }
-}
-  useEffect(()=>{
+  }
+
+  const handleCreateAccount = async () => {
+
+    try {
+
+      await createAccount()
+
+      fetchAccounts()
+
+      alert("Account created successfully")
+    }
+    catch(error) {
+
+      console.log(error)
+
+      alert("Failed to create account")
+    }
+  }
+
+  useEffect(() => {
+
     fetchAccounts()
-  },[])
+
+  }, [])
+
   return (
+
     <div>
+
       <h1>Dashboard</h1>
 
-            <button onClick={handleLogout}>
-                Logout
-            </button>
+      <button onClick={handleLogout}>
+        Logout
+      </button>
+
+      <hr />
+
+      <h2>Your Accounts</h2>
+
+      <button onClick={handleCreateAccount}>
+        Create Account
+      </button>
+
+      {
+        accounts.map((account) => (
+
+          <div key={account.accountNumber}>
+
+            <p>
+              Account Number:
+              {account.accountNumber}
+            </p>
+
+            <p>
+              Balance:
+              {account.balance}
+            </p>
+
+            <p>
+              Status:
+              {account.status}
+            </p>
 
             <hr />
-            <h2>Your Accounts</h2>
-            {
-             accounts.map((account) => (
 
-                    <div key={account.accountNumber}>
+          </div>
+        ))
+      }
 
-                        <p>
-                            Account Number:
-                            {account.accountNumber}
-                        </p>
-
-                        <p>
-                            Balance:
-                            {account.balance}
-                        </p>
-
-                        <p>
-                            Status:
-                            {account.status}
-                        </p>
-
-                        <hr />
-
-                    </div>
-                ))
-            }
     </div>
-   
   )
 }
 
