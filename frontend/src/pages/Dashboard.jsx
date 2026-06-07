@@ -5,7 +5,7 @@ import {
   getAccounts,
   createAccount
 } from "../services/accountService"
-import { depositMoney } from '../services/transactionService'
+import { depositMoney, withdrawMoney } from '../services/transactionService'
 
 const Dashboard = () => {
 
@@ -35,6 +35,33 @@ const Dashboard = () => {
      
     }
   }
+
+  const handleWithdraw = async(accountNumber) => {
+    try{
+         const amount = amounts[accountNumber]
+
+         await withdrawMoney(
+          accountNumber,
+          amount
+         )
+
+         fetchAccounts()
+         alert("Withdrawal Successful")
+    }
+    catch(error) {
+        console.log(error);
+
+    if(error.response?.data?.message) {
+
+      alert(error.response.data.message)
+    }
+    else {
+
+      alert("Withdrawal failed")
+        
+    }
+  }
+}
 
   const handleLogout = () => {
 
@@ -138,6 +165,15 @@ const Dashboard = () => {
   }
 >
   Deposit
+</button>
+<button
+  onClick={() =>
+    handleWithdraw(
+      account.accountNumber
+    )
+  }
+>
+  Withdraw
 </button>
 
             <hr />

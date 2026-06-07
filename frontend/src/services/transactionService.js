@@ -29,3 +29,29 @@ export const depositMoney = async (
 
     return response.data
 }
+export const withdrawMoney = async (
+    accountNumber,
+    amount
+) => {
+
+    const token =
+        localStorage.getItem("token")
+
+    const response = await axios.post(
+
+        BASE_URL + "/withdraw",
+
+        {
+            accountNumber,
+            amount
+        },
+
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    return response.data
+}
