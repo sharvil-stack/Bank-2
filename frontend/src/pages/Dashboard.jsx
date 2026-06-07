@@ -5,12 +5,36 @@ import {
   getAccounts,
   createAccount
 } from "../services/accountService"
+import { depositMoney } from '../services/transactionService'
 
 const Dashboard = () => {
 
   const navigate = useNavigate()
 
   const [accounts, setAccounts] = useState([])
+
+  const [amounts, setAmounts] = useState({})
+
+  const handleDeposit = async (accountNumber) => {
+    try{
+      const amount = amounts[accountNumber]
+
+    await depositMoney(
+      accountNumber,
+      amount
+    )
+
+    fetchAccounts()
+
+    alert("Deposit successful")
+    }
+    catch(error)
+    {
+     console.log(error);
+     alert("Deposit Failed")
+     
+    }
+  }
 
   const handleLogout = () => {
 
@@ -97,6 +121,24 @@ const Dashboard = () => {
               Status:
               {account.status}
             </p>
+
+            <input type='number' placeholder='Enter Amount' value={amounts[account.accountNumber] || ""
+                       }
+                       onChange={(e)=>
+                        setAmounts({
+                          ...amounts, [account.accountNumber]: e.target.value
+                        })
+                       }
+                       />
+                       <button
+  onClick={() =>
+    handleDeposit(
+      account.accountNumber
+    )
+  }
+>
+  Deposit
+</button>
 
             <hr />
 
