@@ -14,7 +14,8 @@ const Login = () => {
             password
         })
         localStorage.setItem("token",data.token)
-
+           console.log(email)
+console.log(password)
         navigate("/dashboard")
         
        }
@@ -58,7 +59,16 @@ const Login = () => {
                 <button type="submit">
                     Login
                 </button>
-
+                <p>
+                    Don't have an account?
+                </p>
+              <button
+  onClick={() =>
+    navigate("/register")
+  }
+>
+  Register
+</button>
             </form>
 
         </div>
@@ -67,3 +77,4 @@ const Login = () => {
 }
 
 export default Login
+
