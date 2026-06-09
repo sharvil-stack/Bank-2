@@ -74,3 +74,24 @@ export const transferMoney = async (fromAccount, toAccount, amount) => {
     )
     return response.data
 }
+export const getRecentTransactions =
+    async (accountNumber) => {
+
+    const token =
+        localStorage.getItem("token")
+
+    const response = await axios.get(
+
+        BASE_URL +
+        `/${accountNumber}/recent`,
+
+        {
+            headers: {
+                Authorization:
+                  `Bearer ${token}`
+            }
+        }
+    )
+
+    return response.data
+}

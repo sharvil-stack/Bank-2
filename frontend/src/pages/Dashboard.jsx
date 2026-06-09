@@ -5,7 +5,7 @@ import {
   getAccounts,
   createAccount
 } from "../services/accountService"
-import { depositMoney, withdrawMoney, transferMoney } from '../services/transactionService'
+import { depositMoney, withdrawMoney, transferMoney, getRecentTransactions } from '../services/transactionService'
 
 const Dashboard = () => {
 
@@ -16,6 +16,8 @@ const Dashboard = () => {
   const [amounts, setAmounts] = useState({})
    
   const [transferData,setTransferData]=useState({});
+
+  const[transactions,setTransactions] = useState({});
   const handleDeposit = async (accountNumber) => {
     try{
       const amount = amounts[accountNumber]
@@ -34,6 +36,22 @@ const Dashboard = () => {
      console.log(error);
      alert("Deposit Failed")
      
+    }
+  }
+
+  const handleShowTransactions = async (accountNumber) => {
+    try {
+      const data = await getRecentTransactions(
+        accountNumber
+      )
+      setTransactions({
+        ...transactions,
+        [accountNumber] : data
+      })
+    } catch (error) {
+      console.log(error);
+      alert("FAILED to fetch transactions")
+      
     }
   }
 
@@ -272,6 +290,47 @@ const Dashboard = () => {
   >
     Transfer
   </button>
+  <button
+  onClick={() =>
+    handleShowTransactions(
+      account.accountNumber
+    )
+  }
+>
+  Show Recent Transactions
+</button>
+{
+  transactions[
+    account.accountNumber
+  ]?.map((transaction) => (
+
+    <div key={transaction.id}>
+
+      <p>
+        Type:
+        {transaction.type}
+      </p>
+
+      <p>
+        Amount:
+        {transaction.amount}
+      </p>
+
+      <p>
+        Description:
+        {transaction.description}
+      </p>
+
+      <p>
+        Date:
+        {transaction.createdAt}
+      </p>
+
+      <hr />
+
+    </div>
+  ))
+}
 
 </div>
 
