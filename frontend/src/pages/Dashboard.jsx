@@ -5,7 +5,7 @@ import {
   getAccounts,
   createAccount
 } from "../services/accountService"
-import { depositMoney, withdrawMoney } from '../services/transactionService'
+import { depositMoney, withdrawMoney, transferMoney } from '../services/transactionService'
 
 const Dashboard = () => {
 
@@ -14,7 +14,8 @@ const Dashboard = () => {
   const [accounts, setAccounts] = useState([])
 
   const [amounts, setAmounts] = useState({})
-
+   
+  const [transferData,setTransferData]=useState({});
   const handleDeposit = async (accountNumber) => {
     try{
       const amount = amounts[accountNumber]
@@ -33,6 +34,34 @@ const Dashboard = () => {
      console.log(error);
      alert("Deposit Failed")
      
+    }
+  }
+
+  const handleTransfer = async (fromAccount) => {
+    try{
+      const transfer = transferData[fromAccount]
+
+      await transferMoney(
+        fromAccount,
+        transfer.toAccount,
+        transfer.amount
+      )
+
+      fetchAccounts()
+      alert("Transfer Successful")
+    }
+    catch(error) {
+      console.log(error);
+
+         if(error.response?.data?.message) {
+
+      alert(error.response.data.message)
+    }
+    else {
+
+      alert("Transfer failed")
+    }
+      
     }
   }
 
@@ -175,6 +204,76 @@ const Dashboard = () => {
 >
   Withdraw
 </button>
+
+<div>
+
+  <input
+    type="text"
+    placeholder="Receiver Account Number"
+
+    value={
+      transferData[
+        account.accountNumber
+      ]?.toAccount || ""
+    }
+
+    onChange={(e) =>
+
+      setTransferData({
+
+        ...transferData,
+
+        [account.accountNumber]: {
+
+          ...transferData[
+            account.accountNumber
+          ],
+
+          toAccount: e.target.value
+        }
+      })
+    }
+  />
+
+  <input
+    type="number"
+    placeholder="Transfer Amount"
+
+    value={
+      transferData[
+        account.accountNumber
+      ]?.amount || ""
+    }
+
+    onChange={(e) =>
+
+      setTransferData({
+
+        ...transferData,
+
+        [account.accountNumber]: {
+
+          ...transferData[
+            account.accountNumber
+          ],
+
+          amount: e.target.value
+        }
+      })
+    }
+  />
+
+  <button
+    onClick={() =>
+      handleTransfer(
+        account.accountNumber
+      )
+    }
+  >
+    Transfer
+  </button>
+
+</div>
 
             <hr />
 
