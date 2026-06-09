@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import "../styles/Dashboard.css"
 import {
   getAccounts,
   createAccount
@@ -17,9 +17,12 @@ const Dashboard = () => {
    
   const [transferData,setTransferData]=useState({});
 
+  const [loading,setLoading] = useState(false)
+
   const[transactions,setTransactions] = useState({});
   const handleDeposit = async (accountNumber) => {
     try{
+      setLoading(true)
       const amount = amounts[accountNumber]
 
     await depositMoney(
@@ -37,10 +40,14 @@ const Dashboard = () => {
      alert("Deposit Failed")
      
     }
+    finally{
+      setLoading(false)
+    }
   }
 
   const handleShowTransactions = async (accountNumber) => {
     try {
+      setLoading(true)
       const data = await getRecentTransactions(
         accountNumber
       )
@@ -53,10 +60,14 @@ const Dashboard = () => {
       alert("FAILED to fetch transactions")
       
     }
+    finally{
+      setLoading(false)
+    }
   }
 
   const handleTransfer = async (fromAccount) => {
     try{
+      setLoading(true)
       const transfer = transferData[fromAccount]
 
       await transferMoney(
@@ -81,10 +92,15 @@ const Dashboard = () => {
     }
       
     }
+    finally{
+      setLoading(false)
+    }
   }
 
   const handleWithdraw = async(accountNumber) => {
     try{
+         
+      setLoading(true)
          const amount = amounts[accountNumber]
 
          await withdrawMoney(
@@ -107,6 +123,9 @@ const Dashboard = () => {
       alert("Withdrawal failed")
         
     }
+  }
+  finally{
+    setLoading(false)
   }
 }
 
@@ -160,11 +179,11 @@ const Dashboard = () => {
 
   return (
 
-    <div>
+    <div className='dashboard-container'>
 
-      <h1>Dashboard</h1>
+      <h1 className='dashboard-title'>Dashboard</h1>
 
-      <button onClick={handleLogout}>
+      <button className='logout-button' onClick={handleLogout}>
         Logout
       </button>
 
@@ -176,10 +195,11 @@ const Dashboard = () => {
         Create Account
       </button>
 
+<div className='accounts-container'>
       {
         accounts.map((account) => (
 
-          <div key={account.accountNumber}>
+          <div className='account-card' key={account.accountNumber}>
 
             <p>
               Account Number:
@@ -204,23 +224,37 @@ const Dashboard = () => {
                         })
                        }
                        />
-                       <button
+ <button
+  disabled={loading}
+
   onClick={() =>
-    handleDeposit(
-      account.accountNumber
-    )
+    handleDeposit(account.accountNumber)
   }
 >
-  Deposit
+
+  {
+    loading
+      ? "Processing..."
+      : "Deposit"
+  }
+  
+
 </button>
 <button
+  disabled={loading}
+
   onClick={() =>
-    handleWithdraw(
-      account.accountNumber
-    )
+    handleWithdraw(account.accountNumber)
   }
 >
-  Withdraw
+
+  {
+    loading
+      ? "Processing..."
+      : "Withdraw"
+  }
+  
+
 </button>
 
 <div>
@@ -282,14 +316,20 @@ const Dashboard = () => {
   />
 
   <button
-    onClick={() =>
-      handleTransfer(
-        account.accountNumber
-      )
-    }
-  >
-    Transfer
-  </button>
+  disabled={loading}
+
+  onClick={() =>
+    handleTransfer(account.accountNumber)
+  }
+>
+
+  {
+    loading
+      ? "Processing..."
+      : "Transfer"
+  }
+
+</button>
   <button
   onClick={() =>
     handleShowTransactions(
@@ -299,12 +339,14 @@ const Dashboard = () => {
 >
   Show Recent Transactions
 </button>
+<div className="transaction-section">
+
 {
   transactions[
     account.accountNumber
   ]?.map((transaction) => (
 
-    <div key={transaction.id}>
+    <div className="transaction-item" key={transaction.id}>
 
       <p>
         Type:
@@ -331,6 +373,7 @@ const Dashboard = () => {
     </div>
   ))
 }
+</div>
 
 </div>
 
@@ -339,6 +382,7 @@ const Dashboard = () => {
           </div>
         ))
       }
+      </div>
 
     </div>
   )

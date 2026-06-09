@@ -14,8 +14,7 @@ const Login = () => {
             password
         })
         localStorage.setItem("token",data.token)
-           console.log(email)
-console.log(password)
+   
         navigate("/dashboard")
         
        }
