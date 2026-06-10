@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const BASE_URL =
-    "http://localhost:8080/transactions"
+    import.meta.env.VITE_API_URL;
 
 export const depositMoney = async (
     accountNumber,
@@ -13,7 +13,7 @@ export const depositMoney = async (
 
     const response = await axios.post(
 
-        BASE_URL + "/deposit",
+        `${BASE_URL}/transactions/deposit`,
 
         {
             accountNumber,
@@ -39,7 +39,7 @@ export const withdrawMoney = async (
 
     const response = await axios.post(
 
-        BASE_URL + "/withdraw",
+        `${BASE_URL}/transactions/withdraw`,
 
         {
             accountNumber,
@@ -60,7 +60,7 @@ export const transferMoney = async (fromAccount, toAccount, amount) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-        BASE_URL + "/transfer",
+        `${BASE_URL}/transactions/transfer`,
         {
             fromAccount,
             toAccount,
@@ -82,8 +82,7 @@ export const getRecentTransactions =
 
     const response = await axios.get(
 
-        BASE_URL +
-        `/${accountNumber}/recent`,
+       `${BASE_URL}/transactions/${accountNumber}/recent`,
 
         {
             headers: {

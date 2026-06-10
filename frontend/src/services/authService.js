@@ -1,10 +1,11 @@
 import axios from "axios";
-const BASE_URL  = "http://localhost:8080/auth"
+const BASE_URL =
+    import.meta.env.VITE_API_URL;
 
 export const loginUser = async(loginData)=>{
 
      const response = await axios.post(
-        `${BASE_URL}/login`,
+        `${BASE_URL}/auth/login`,
         loginData
     )
 return response.data;
@@ -17,7 +18,7 @@ export const registerUser = async (
 ) => {
 
   const response = await axios.post(
-    "http://localhost:8080/auth/register",
+    `${BASE_URL}/auth/register`,
 
     {
       firstName,

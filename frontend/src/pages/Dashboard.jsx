@@ -142,6 +142,9 @@ const Dashboard = () => {
 
       const data = await getAccounts()
 
+      console.log(data);
+      
+
       setAccounts(data)
 
     }
