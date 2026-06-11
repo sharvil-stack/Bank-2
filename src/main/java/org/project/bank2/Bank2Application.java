@@ -9,6 +9,7 @@ public class Bank2Application {
     public static void main(String[] args) {
         SpringApplication.run(Bank2Application.class, args);
         System.out.println("Working");
+
     }
 
 }
