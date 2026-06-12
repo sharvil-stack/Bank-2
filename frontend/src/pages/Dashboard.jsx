@@ -6,6 +6,7 @@ import {
   createAccount
 } from "../services/accountService"
 import { depositMoney, withdrawMoney, transferMoney, getRecentTransactions } from '../services/transactionService'
+import Navbar from '../components/Navbar';
 
 const Dashboard = () => {
 
@@ -180,6 +181,7 @@ const Dashboard = () => {
   }, [])
 
   return (
+    
 
     <div className='dashboard-container'>
 

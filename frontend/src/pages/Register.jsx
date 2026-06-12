@@ -4,6 +4,7 @@ import {
   registerUser
 }
 from "../services/authService"
+import '../styles/Auth.css'
 
 
 const Register = () => {
@@ -51,70 +52,66 @@ const [lastName, setLastName] =
     }
   return (
    
-    <div>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-brand">Finova</div>
+        <h1 className="auth-title">Create your account</h1>
 
-      <h1>Register</h1>
+        <form className="auth-form" onSubmit={handleRegister}>
 
-      <form
-        onSubmit={handleRegister}
-      >
+          <div className="auth-row">
+            <input
+              type="text"
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) =>
+                setFirstName(e.target.value)
+              }
+            />
 
-        <input
-  type="text"
-  placeholder="First Name"
-  value={firstName}
-  onChange={(e) =>
-    setFirstName(e.target.value)
-  }
-/>
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) =>
+                setLastName(e.target.value)
+              }
+            />
+          </div>
 
-<br />
-<br />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
+          />
 
-<input
-  type="text"
-  placeholder="Last Name"
-  value={lastName}
-  onChange={(e) =>
-    setLastName(e.target.value)
-  }
-/>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(
+                e.target.value
+              )
+            }
+          />
 
-        <br />
-        <br />
+          <button type="submit" className="btn-primary auth-submit">
+            Register
+          </button>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-        />
+        </form>
 
-        <br />
-        <br />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-        />
-
-        <br />
-        <br />
-
-        <button type="submit">
-          Register
-        </button>
-
-      </form>
-
+        <div className="auth-footer">
+          <p>Already have an account?</p>
+          <button onClick={() => navigate("/")}>
+            Login
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

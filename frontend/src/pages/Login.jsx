@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { loginUser } from '../services/authService'
 import { useNavigate } from 'react-router-dom'
+import '../styles/Auth.css'
 const Login = () => {
     const [email,setEmail] = useState("")
     const[password, setPassword]=useState("")
@@ -27,50 +28,39 @@ const Login = () => {
        }
     }
   return (
-   <div>
-
-            <h1>Login</h1>
-
-            <form onSubmit={handleLogin}>
-
-                <div>
-                    <input
-                        type="email"
-                        placeholder="Enter Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-
-                <br />
-
-                <div>
-                    <input
-                        type="password"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
-
-                <br />
-
-                <button type="submit">
-                    Login
-                </button>
-                <p>
-                    Don't have an account?
-                </p>
-              <button
-  onClick={() =>
-    navigate("/register")
-  }
->
-  Register
-</button>
-            </form>
-
+ <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-brand">Finova</div>
+        <h1 className="auth-title">Welcome back</h1>
+ 
+        <form className="auth-form" onSubmit={handleLogin}>
+            <input
+                type="email"
+                placeholder="Enter Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+ 
+            <input
+                type="password"
+                placeholder="Enter Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+ 
+            <button type="submit" className="btn-primary auth-submit">
+                Login
+            </button>
+        </form>
+ 
+        <div className="auth-footer">
+          <p>Don't have an account?</p>
+          <button onClick={() => navigate("/register")}>
+            Register
+          </button>
         </div>
+      </div>
+    </div>
     )
     
 }
