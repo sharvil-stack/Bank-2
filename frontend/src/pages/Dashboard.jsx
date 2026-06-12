@@ -183,209 +183,220 @@ const Dashboard = () => {
   return (
     
 
-    <div className='dashboard-container'>
+      <div className='dashboard-container'>
 
-      <h1 className='dashboard-title'>Dashboard</h1>
+      <div className="dashboard-header">
+        <h1 className='dashboard-title'>Dashboard</h1>
 
-      <button className='logout-button' onClick={handleLogout}>
-        Logout
-      </button>
+        <button className='logout-button' onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
 
-      <hr />
+      <div className="section-header">
+        <h2>Your Accounts</h2>
 
-      <h2>Your Accounts</h2>
+        <button className="create-account-btn" onClick={handleCreateAccount}>
+          + Create Account
+        </button>
+      </div>
 
-      <button onClick={handleCreateAccount}>
-        Create Account
-      </button>
-
-<div className='accounts-container'>
-      {
-        accounts.map((account) => (
-
-          <div className='account-card' key={account.accountNumber}>
-
-            <p>
-              Account Number:
-              {account.accountNumber}
-            </p>
-
-            <p>
-              Balance:
-              {account.balance}
-            </p>
-
-            <p>
-              Status:
-              {account.status}
-            </p>
-
-            <input type='number' placeholder='Enter Amount' value={amounts[account.accountNumber] || ""
-                       }
-                       onChange={(e)=>
-                        setAmounts({
-                          ...amounts, [account.accountNumber]: e.target.value
-                        })
-                       }
-                       />
- <button
-  disabled={loading}
-
-  onClick={() =>
-    handleDeposit(account.accountNumber)
-  }
->
-
-  {
-    loading
-      ? "Processing..."
-      : "Deposit"
-  }
-  
-
-</button>
-<button
-  disabled={loading}
-
-  onClick={() =>
-    handleWithdraw(account.accountNumber)
-  }
->
-
-  {
-    loading
-      ? "Processing..."
-      : "Withdraw"
-  }
-  
-
-</button>
-
-<div>
-
-  <input
-    type="text"
-    placeholder="Receiver Account Number"
-
-    value={
-      transferData[
-        account.accountNumber
-      ]?.toAccount || ""
-    }
-
-    onChange={(e) =>
-
-      setTransferData({
-
-        ...transferData,
-
-        [account.accountNumber]: {
-
-          ...transferData[
-            account.accountNumber
-          ],
-
-          toAccount: e.target.value
+      <div className='accounts-container'>
+        {
+          accounts.length === 0 && (
+            <div className="empty-state">
+              No accounts yet. Create one to get started.
+            </div>
+          )
         }
-      })
-    }
-  />
+        {
+          accounts.map((account) => (
 
-  <input
-    type="number"
-    placeholder="Transfer Amount"
+            <div className='account-card' key={account.accountNumber}>
 
-    value={
-      transferData[
-        account.accountNumber
-      ]?.amount || ""
-    }
+              <div className="account-card-header">
+                <div>
+                  <p className="account-number">
+                    Account No. {account.accountNumber}
+                  </p>
+                  <p className="account-balance">
+                    ₹{account.balance}
+                  </p>
+                </div>
+              </div>
 
-    onChange={(e) =>
+              <span className="account-status">
+                {account.status}
+              </span>
 
-      setTransferData({
+              <input type='number' placeholder='Enter Amount' value={amounts[account.accountNumber] || ""
+                         }
+                         onChange={(e)=>
+                          setAmounts({
+                            ...amounts, [account.accountNumber]: e.target.value
+                          })
+                         }
+                         />
 
-        ...transferData,
+              <div className="account-actions">
+                <button
+                  className="btn-primary"
+                  disabled={loading}
 
-        [account.accountNumber]: {
+                  onClick={() =>
+                    handleDeposit(account.accountNumber)
+                  }
+                >
 
-          ...transferData[
-            account.accountNumber
-          ],
+                  {
+                    loading
+                      ? "Processing..."
+                      : "Deposit"
+                  }
 
-          amount: e.target.value
+
+                </button>
+                <button
+                  className="btn-secondary"
+                  disabled={loading}
+
+                  onClick={() =>
+                    handleWithdraw(account.accountNumber)
+                  }
+                >
+
+                  {
+                    loading
+                      ? "Processing..."
+                      : "Withdraw"
+                  }
+
+
+                </button>
+              </div>
+
+              <div className="transfer-section">
+
+                <div className="transfer-row">
+                  <input
+                    type="text"
+                    placeholder="Receiver Account Number"
+
+                    value={
+                      transferData[
+                        account.accountNumber
+                      ]?.toAccount || ""
+                    }
+
+                    onChange={(e) =>
+
+                      setTransferData({
+
+                        ...transferData,
+
+                        [account.accountNumber]: {
+
+                          ...transferData[
+                            account.accountNumber
+                          ],
+
+                          toAccount: e.target.value
+                        }
+                      })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Transfer Amount"
+
+                    value={
+                      transferData[
+                        account.accountNumber
+                      ]?.amount || ""
+                    }
+
+                    onChange={(e) =>
+
+                      setTransferData({
+
+                        ...transferData,
+
+                        [account.accountNumber]: {
+
+                          ...transferData[
+                            account.accountNumber
+                          ],
+
+                          amount: e.target.value
+                        }
+                      })
+                    }
+                  />
+                </div>
+
+                <button
+                  className="btn-primary"
+                  disabled={loading}
+
+                  onClick={() =>
+                    handleTransfer(account.accountNumber)
+                  }
+                >
+
+                  {
+                    loading
+                      ? "Processing..."
+                      : "Transfer"
+                  }
+
+                </button>
+              </div>
+
+              <button
+                className="show-tx-btn"
+                onClick={() =>
+                  handleShowTransactions(
+                    account.accountNumber
+                  )
+                }
+              >
+                Show Recent Transactions
+              </button>
+
+              <div className="transaction-section">
+
+                {
+                  transactions[
+                    account.accountNumber
+                  ]?.map((transaction) => (
+
+                    <div className="transaction-item" key={transaction.id}>
+
+                      <p>
+                        {transaction.type}
+                      </p>
+
+                      <p>
+                        ₹{transaction.amount}
+                      </p>
+
+                      <p>
+                        {transaction.description}
+                      </p>
+
+                      <p>
+                        {transaction.createdAt}
+                      </p>
+
+                    </div>
+                  ))
+                }
+              </div>
+
+            </div>
+          ))
         }
-      })
-    }
-  />
-
-  <button
-  disabled={loading}
-
-  onClick={() =>
-    handleTransfer(account.accountNumber)
-  }
->
-
-  {
-    loading
-      ? "Processing..."
-      : "Transfer"
-  }
-
-</button>
-  <button
-  onClick={() =>
-    handleShowTransactions(
-      account.accountNumber
-    )
-  }
->
-  Show Recent Transactions
-</button>
-<div className="transaction-section">
-
-{
-  transactions[
-    account.accountNumber
-  ]?.map((transaction) => (
-
-    <div className="transaction-item" key={transaction.id}>
-
-      <p>
-        Type:
-        {transaction.type}
-      </p>
-
-      <p>
-        Amount:
-        {transaction.amount}
-      </p>
-
-      <p>
-        Description:
-        {transaction.description}
-      </p>
-
-      <p>
-        Date:
-        {transaction.createdAt}
-      </p>
-
-      <hr />
-
-    </div>
-  ))
-}
-</div>
-
-</div>
-
-            <hr />
-
-          </div>
-        ))
-      }
       </div>
 
     </div>
