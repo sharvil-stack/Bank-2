@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
 
-import "./Navbar.css";
+import "../styles/Navbar.css"
 
 const Navbar = () => {
 
