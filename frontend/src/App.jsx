@@ -7,6 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Register from './pages/Register'
+import AdminLayout from './components/admin/AdminLayout'
+import AdminDashboard from '../pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminAccounts from './pages/admin/AdminAccounts'
+import AdminTransactions from './pages/admin/AdminTransactions'
 function App() {
   return (
   <BrowserRouter>
@@ -23,6 +28,17 @@ function App() {
           />
           <Route path='/register' element={<Register/>}
           />
+
+            <Route path='/admin' element={
+            <AdminRoute>
+              <AdminLayout/>
+            </AdminRoute>
+          }>
+            <Route index element={<AdminDashboard/>} />
+            <Route path='users' element={<AdminUsers/>} />
+            <Route path='accounts' element={<AdminAccounts/>} />
+            <Route path='transactions' element={<AdminTransactions/>} />
+          </Route>
       </Routes>
 
   </BrowserRouter>
