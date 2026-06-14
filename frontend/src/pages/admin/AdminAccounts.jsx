@@ -1,18 +1,19 @@
-import React from 'react'
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { getAllAccounts, activateAccount, closeAccount } from '../../services/accountService'
 
-const StatusBadge = ({status}) => {
+const StatusBadge = ({ status }) => {
     const cls = status?.toLowerCase()
-    return <span className={'admin-badge ${cls}'}>{status}</span>
+    return <span className={`admin-badge ${cls}`}>{status}</span>
 }
+
 const AdminAccounts = () => {
-     const [accounts, setAccounts] = useState([])
+    const [accounts, setAccounts] = useState([])
     const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState(null)
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState("ALL")
-      const fetchAccounts = async () => {
+
+    const fetchAccounts = async () => {
         try {
             setLoading(true)
             const data = await getAllAccounts()
@@ -39,7 +40,7 @@ const AdminAccounts = () => {
         }
     }
 
-     const handleClose = async (accountNumber) => {
+    const handleClose = async (accountNumber) => {
         if (!window.confirm(`Close account ${accountNumber}? This cannot be undone.`)) return
         try {
             setActionLoading(accountNumber + "_close")
@@ -51,16 +52,14 @@ const AdminAccounts = () => {
             setActionLoading(null)
         }
     }
- const filtered = accounts
+
+    const filtered = accounts
         .filter(a => statusFilter === "ALL" || a.status === statusFilter)
         .filter(a =>
-            `${a.accountNumber} ${a.status}`
-                .toLowerCase()
-                .includes(search.toLowerCase())
+            `${a.accountNumber} ${a.status}`.toLowerCase().includes(search.toLowerCase())
         )
 
     const totalBalance = accounts.reduce((sum, a) => sum + (a.balance || 0), 0)
-
 
     return (
         <div>
@@ -81,12 +80,8 @@ const AdminAccounts = () => {
                     onChange={e => setSearch(e.target.value)}
                     style={{ maxWidth: 300 }}
                 />
-                <select
-                    value={statusFilter}
-                    onChange={e => setStatusFilter(e.target.value)}
-                    style={{ width: 'auto' }}
-                >
-                    <option value="ALL">All Statuses</option>
+                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ width: 'auto' }}>
+                    <option value="ALL">All Status</option>
                     <option value="ACTIVE">Active</option>
                     <option value="CLOSED">Closed</option>
                 </select>
@@ -112,41 +107,25 @@ const AdminAccounts = () => {
                         <tbody>
                             {filtered.map(account => (
                                 <tr key={account.accountNumber}>
-                                    <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
-                                        {account.accountNumber}
-                                    </td>
+                                    <td style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>{account.accountNumber}</td>
                                     <td style={{ color: 'var(--text-h)', fontWeight: 600 }}>
                                         ₹{Number(account.balance).toLocaleString('en-IN')}
                                     </td>
-                                    <td>
-                                        <StatusBadge status={account.status} />
-                                    </td>
+                                    <td><StatusBadge status={account.status} /></td>
                                     <td>
                                         <div className="admin-table-actions">
                                             {account.status !== 'ACTIVE' && (
-                                                <button
-                                                    className="btn-primary"
-                                                    disabled={actionLoading === account.accountNumber + "_activate"}
-                                                    onClick={() => handleActivate(account.accountNumber)}
-                                                >
-                                                    {actionLoading === account.accountNumber + "_activate"
-                                                        ? "Activating..." : "Activate"}
+                                                <button className="btn-primary" disabled={actionLoading === account.accountNumber + "_activate"} onClick={() => handleActivate(account.accountNumber)}>
+                                                    {actionLoading === account.accountNumber + "_activate" ? "Activating..." : "Activate"}
                                                 </button>
                                             )}
                                             {account.status !== 'CLOSED' && (
-                                                <button
-                                                    className="btn-danger"
-                                                    disabled={actionLoading === account.accountNumber + "_close"}
-                                                    onClick={() => handleClose(account.accountNumber)}
-                                                >
-                                                    {actionLoading === account.accountNumber + "_close"
-                                                        ? "Closing..." : "Close"}
+                                                <button className="btn-danger" disabled={actionLoading === account.accountNumber + "_close"} onClick={() => handleClose(account.accountNumber)}>
+                                                    {actionLoading === account.accountNumber + "_close" ? "Closing..." : "Close"}
                                                 </button>
                                             )}
                                             {account.status === 'CLOSED' && (
-                                                <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-                                                    No actions
-                                                </span>
+                                                <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>No actions</span>
                                             )}
                                         </div>
                                     </td>

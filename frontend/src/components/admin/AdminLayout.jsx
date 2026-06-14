@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink, useNavigate, Outlet } from 'react-router-dom'
-import '../styles/Admin.css'
+import '../../styles/Admin.css'
 
 const AdminLayout = () => {
     const navigate = useNavigate()
@@ -41,3 +41,4 @@ const AdminLayout = () => {
         </div>
     )
 }
+export default AdminLayout;

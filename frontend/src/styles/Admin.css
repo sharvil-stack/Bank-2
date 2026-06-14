@@ -82,7 +82,7 @@
   color: var(--text-muted);
 }
 
-/* Shared table styles for admin pages */
+
 .admin-page-header {
   display: flex;
   justify-content: space-between;
@@ -188,7 +188,7 @@
   color: var(--text-muted);
 }
 
-/* Stat cards for dashboard */
+
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

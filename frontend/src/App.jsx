@@ -8,10 +8,11 @@ import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Register from './pages/Register'
 import AdminLayout from './components/admin/AdminLayout'
-import AdminDashboard from '../pages/admin/AdminDashboard'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminAccounts from './pages/admin/AdminAccounts'
 import AdminTransactions from './pages/admin/AdminTransactions'
+import AdminRoute from './routes/AdminRoute'
 function App() {
   return (
   <BrowserRouter>

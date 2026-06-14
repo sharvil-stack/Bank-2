@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
-import { checkIsAdmin } from '../services/userService'
+
 import { useEffect,useState } from 'react'
 const ProtectedRoute = ({children}) => {
 
