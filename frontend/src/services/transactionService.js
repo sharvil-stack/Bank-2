@@ -94,3 +94,11 @@ export const getRecentTransactions =
 
     return response.data
 }
+export const getAllTransactionsByAccount = async (accountNumber) => {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+        `${BASE_URL}/transactions/${accountNumber}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+    return response.data
+}
