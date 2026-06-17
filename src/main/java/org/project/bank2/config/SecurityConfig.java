@@ -87,6 +87,9 @@ public class SecurityConfig {
                         .requestMatchers("/transactions/**")
                         .hasAnyRole("USER", "ADMIN")
 
+                        .requestMatchers("/ai/**")
+                        .hasAnyRole("USER", "ADMIN")
+
                         .anyRequest()
                         .authenticated()
                 )
