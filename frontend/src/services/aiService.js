@@ -24,3 +24,11 @@ export const askAiAssistant = async (question, history) => {
     )
     return response.data
 }
+
+export const getSpendingSummary = async () => {
+    const response = await axios.get(
+        `${BASE_URL}/ai/spending-summary`,
+        authHeaders()
+    )
+    return response.data
+}

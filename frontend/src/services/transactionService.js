@@ -5,7 +5,8 @@ const BASE_URL =
 
 export const depositMoney = async (
     accountNumber,
-    amount
+    amount,
+    note
 ) => {
 
     const token =
@@ -17,7 +18,8 @@ export const depositMoney = async (
 
         {
             accountNumber,
-            amount
+            amount,
+            note
         },
 
         {
@@ -31,7 +33,8 @@ export const depositMoney = async (
 }
 export const withdrawMoney = async (
     accountNumber,
-    amount
+    amount,
+    note
 ) => {
 
     const token =
@@ -43,7 +46,8 @@ export const withdrawMoney = async (
 
         {
             accountNumber,
-            amount
+            amount,
+            note
         },
 
         {
@@ -56,7 +60,7 @@ export const withdrawMoney = async (
     return response.data
 }
 
-export const transferMoney = async (fromAccount, toAccount, amount) => {
+export const transferMoney = async (fromAccount, toAccount, amount, note) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
@@ -64,7 +68,8 @@ export const transferMoney = async (fromAccount, toAccount, amount) => {
         {
             fromAccount,
             toAccount,
-            amount
+            amount,
+            note
         },
         {
             headers: {

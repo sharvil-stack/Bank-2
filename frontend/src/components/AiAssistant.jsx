@@ -51,7 +51,7 @@ const AiAssistant = () => {
     setChatLoading(true)
 
     try {
-      
+      // history sent to backend excludes the current question (it's passed as `question` separately)
       const history = messages.map((m) => ({ role: m.role, content: m.content }))
       const data = await askAiAssistant(trimmed, history)
       setMessages([...updatedMessages, { role: 'model', content: data.answer }])
@@ -84,7 +84,7 @@ const AiAssistant = () => {
         <h2>Finova Assistant</h2>
       </div>
 
-     
+      {/* Insight Card */}
       <div className="ai-insight-card">
         <div className="ai-insight-label">
           <span className="ai-insight-icon">💡</span>
@@ -110,7 +110,7 @@ const AiAssistant = () => {
         )}
       </div>
 
-     
+      {/* Chat */}
       <div className="ai-chat-container">
         <div className="ai-chat-header">
           <span>Ask anything about your finances</span>
@@ -191,4 +191,5 @@ const AiAssistant = () => {
     </div>
   )
 }
-export default AiAssistant;
+
+export default AiAssistant
