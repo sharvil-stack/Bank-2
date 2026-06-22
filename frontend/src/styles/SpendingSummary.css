@@ -52,14 +52,12 @@
   padding: 16px 0;
 }
  
-/* ─── Donut Chart ────────────────────────────────── */
 .donut-container { text-align: center; margin-bottom: 18px; }
 .donut-svg { display: block; margin: 0 auto; overflow: visible; }
 .donut-slice { cursor: pointer; transition: opacity 0.2s; }
 .donut-slice:hover { opacity: 0.75; }
 .donut-center-label { pointer-events: none; }
  
-/* ─── Bar List ───────────────────────────────────── */
 .spending-summary-list {
   display: flex;
   flex-direction: column;
