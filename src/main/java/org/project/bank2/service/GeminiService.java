@@ -40,6 +40,39 @@ public class GeminiService {
         return callGemini(systemPrompt, conversation);
     }
 
+    public String classifyTransaction(String description) {
+
+        String prompt = """
+            Categorize this transaction into EXACTLY ONE category:
+
+            Food
+            Shopping
+            Education
+            Transport
+            Entertainment
+            Healthcare
+            Other
+
+            Examples:
+
+            Swiggy Order -> Food
+            Zomato Dinner -> Food
+            Uber Ride -> Transport
+            Ola Ride -> Transport
+            Amazon Purchase -> Shopping
+            Netflix Subscription -> Entertainment
+            Apollo Pharmacy -> Healthcare
+            Coursera Course -> Education
+
+            Transaction:
+            """ + description + """
+
+            Return only the category name.
+            """;
+
+        return getCompletion("", prompt).trim();
+    }
+
     private String callGemini(String systemPrompt, List<GeminiRequest.Content> contents) {
 
         String url = BASE_URL + model + ":generateContent";
@@ -61,7 +94,7 @@ public class GeminiService {
                     .retrieve()
                     .body(GeminiResponse.class);
         } catch (RestClientException ex) {
-
+             ex.printStackTrace();
             throw new BadRequestException(
                     "The AI assistant is temporarily unavailable. Please try again shortly."
             );

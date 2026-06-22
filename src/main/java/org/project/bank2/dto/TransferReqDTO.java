@@ -16,4 +16,5 @@ public class TransferReqDTO {
     @NotNull
     @Positive(message = "Amount must be greater than zero")
     private BigDecimal amount;
+    private String description;
 }

@@ -216,6 +216,7 @@ public class AiAssistantService {
             return new SpendingSummaryDTO(result);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new SpendingSummaryDTO(emptyResult);
         }
     }

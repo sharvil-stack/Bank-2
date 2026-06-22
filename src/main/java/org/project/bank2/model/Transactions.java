@@ -24,6 +24,9 @@ public class Transactions {
     private Long id;
     private BigDecimal amount;
 
+    @Column
+    private String Category;
+
     @Enumerated(EnumType.STRING)
     private TransactionType type;
     private String description;

@@ -21,4 +21,6 @@ public class TransactionReqDTO {
     @NotNull
     @Positive
     private BigDecimal amount;
+
+    private String description;
 }
