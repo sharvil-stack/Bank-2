@@ -21,19 +21,21 @@ const AiAssistant = () => {
     scrollToBottom()
   }, [messages])
 
-  useEffect(() => {
-    fetchInsight()
-  }, [])
+
 
   const fetchInsight = async () => {
     try {
       setInsightLoading(true)
       setInsightError(null)
+
       const data = await getAiInsight()
+
       setInsight(data.insight)
     } catch (error) {
       console.error(error)
-      setInsightError('Could not load insight. Make sure you have accounts with transactions.')
+      setInsightError(
+        'Could not generate insight. Please try again later.'
+      )
     } finally {
       setInsightLoading(false)
     }
@@ -41,9 +43,14 @@ const AiAssistant = () => {
 
   const handleAsk = async () => {
     const trimmed = question.trim()
+
     if (!trimmed || chatLoading) return
 
-    const userMessage = { role: 'user', content: trimmed }
+    const userMessage = {
+      role: 'user',
+      content: trimmed,
+    }
+
     const updatedMessages = [...messages, userMessage]
 
     setMessages(updatedMessages)
@@ -51,15 +58,33 @@ const AiAssistant = () => {
     setChatLoading(true)
 
     try {
-      // history sent to backend excludes the current question (it's passed as `question` separately)
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-      const data = await askAiAssistant(trimmed, history)
-      setMessages([...updatedMessages, { role: 'model', content: data.answer }])
-    } catch (error) {
-      console.error(error)
+      const history = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }))
+
+      const data = await askAiAssistant(
+        trimmed,
+        history
+      )
+
       setMessages([
         ...updatedMessages,
-        { role: 'model', content: '⚠️ Something went wrong. Please try again.' },
+        {
+          role: 'model',
+          content: data.answer,
+        },
+      ])
+    } catch (error) {
+      console.error(error)
+
+      setMessages([
+        ...updatedMessages,
+        {
+          role: 'model',
+          content:
+            '⚠️ Something went wrong. Please try again.',
+        },
       ])
     } finally {
       setChatLoading(false)
@@ -89,10 +114,17 @@ const AiAssistant = () => {
         <div className="ai-insight-label">
           <span className="ai-insight-icon">💡</span>
           Financial Insight
-          <button className="ai-refresh-btn" onClick={fetchInsight} disabled={insightLoading} title="Refresh insight">
-            {insightLoading ? '⟳' : '↻'}
-          </button>
         </div>
+
+        <button
+          className="ai-generate-btn"
+          onClick={fetchInsight}
+          disabled={insightLoading}
+        >
+          {insightLoading
+            ? 'Generating...'
+            : 'Generate Insight'}
+        </button>
 
         {insightLoading && (
           <div className="ai-skeleton">
@@ -101,21 +133,42 @@ const AiAssistant = () => {
           </div>
         )}
 
-        {!insightLoading && insightError && (
-          <p className="ai-insight-error">{insightError}</p>
-        )}
+        {!insightLoading &&
+          !insight &&
+          !insightError && (
+            <p className="ai-insight-placeholder">
+              Click Generate Insight to analyze
+              your finances.
+            </p>
+          )}
 
-        {!insightLoading && insight && (
-          <p className="ai-insight-text">{insight}</p>
-        )}
+        {!insightLoading &&
+          insightError && (
+            <p className="ai-insight-error">
+              {insightError}
+            </p>
+          )}
+
+        {!insightLoading &&
+          insight && (
+            <p className="ai-insight-text">
+              {insight}
+            </p>
+          )}
       </div>
 
       {/* Chat */}
       <div className="ai-chat-container">
         <div className="ai-chat-header">
-          <span>Ask anything about your finances</span>
+          <span>
+            Ask anything about your finances
+          </span>
+
           {messages.length > 0 && (
-            <button className="ai-clear-btn" onClick={handleClearChat}>
+            <button
+              className="ai-clear-btn"
+              onClick={handleClearChat}
+            >
               Clear
             </button>
           )}
@@ -125,6 +178,7 @@ const AiAssistant = () => {
           {messages.length === 0 && (
             <div className="ai-empty-chat">
               <p>Try asking:</p>
+
               <div className="ai-suggestions">
                 {[
                   'What did I spend the most on?',
@@ -134,9 +188,9 @@ const AiAssistant = () => {
                   <button
                     key={s}
                     className="ai-suggestion-chip"
-                    onClick={() => {
+                    onClick={() =>
                       setQuestion(s)
-                    }}
+                    }
                   >
                     {s}
                   </button>
@@ -148,20 +202,34 @@ const AiAssistant = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`ai-message ${msg.role === 'user' ? 'ai-message-user' : 'ai-message-bot'}`}
+              className={`ai-message ${
+                msg.role === 'user'
+                  ? 'ai-message-user'
+                  : 'ai-message-bot'
+              }`}
             >
               <span className="ai-message-role">
-                {msg.role === 'user' ? 'You' : 'Finova'}
+                {msg.role === 'user'
+                  ? 'You'
+                  : 'Finova'}
               </span>
-              <p className="ai-message-content">{msg.content}</p>
+
+              <p className="ai-message-content">
+                {msg.content}
+              </p>
             </div>
           ))}
 
           {chatLoading && (
             <div className="ai-message ai-message-bot">
-              <span className="ai-message-role">Finova</span>
+              <span className="ai-message-role">
+                Finova
+              </span>
+
               <div className="ai-typing">
-                <span /><span /><span />
+                <span />
+                <span />
+                <span />
               </div>
             </div>
           )}
@@ -174,15 +242,21 @@ const AiAssistant = () => {
             className="ai-input"
             placeholder="Ask about your spending, savings, or transactions..."
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={(e) =>
+              setQuestion(e.target.value)
+            }
             onKeyDown={handleKeyDown}
             rows={2}
             disabled={chatLoading}
           />
+
           <button
             className="ai-send-btn"
             onClick={handleAsk}
-            disabled={chatLoading || !question.trim()}
+            disabled={
+              chatLoading ||
+              !question.trim()
+            }
           >
             {chatLoading ? '…' : '↑'}
           </button>
