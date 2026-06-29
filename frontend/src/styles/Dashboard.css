@@ -178,3 +178,95 @@
   border: 1px dashed var(--border-light);
   border-radius: var(--radius-md);
 }
+/* ── Spending Summary Strip ─────────────────── */
+.summary-stats-card {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+
+.stat-block {
+  flex: 1;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid var(--border);
+}
+
+.stat-block:last-child {
+  border-right: none;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.stat-value.positive { color: var(--accent); }
+.stat-value.negative { color: var(--danger); }
+.stat-value.neutral  { color: var(--info); }
+
+@media (max-width: 700px) {
+  .summary-stats-card {
+    flex-wrap: wrap;
+  }
+  .stat-block {
+    flex: 1 1 50%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* ── Note Input ──────────────────────────────── */
+.note-input {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.note-input::placeholder {
+  font-size: 13px;
+}
+
+/* ── Two Column Layout ──────────────────────── */
+.dashboard-body {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.dashboard-left {
+  min-width: 0;
+}
+
+.dashboard-right {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 220px);
+  min-height: 500px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-body {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-right {
+    position: static;
+    height: 600px;
+  }
+}

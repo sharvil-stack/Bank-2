@@ -12,5 +12,6 @@ public class TransactionResDTO {
     private BigDecimal amount;
     private String type;
     private String description;
+    private String category;
     private LocalDateTime createdAt;
 }

@@ -5,7 +5,8 @@ const BASE_URL =
 
 export const depositMoney = async (
     accountNumber,
-    amount
+    amount,
+    description
 ) => {
 
     const token =
@@ -15,10 +16,11 @@ export const depositMoney = async (
 
         `${BASE_URL}/transactions/deposit`,
 
-        {
-            accountNumber,
-            amount
-        },
+       {
+    accountNumber,
+    amount,
+    description
+},
 
         {
             headers: {
@@ -31,7 +33,8 @@ export const depositMoney = async (
 }
 export const withdrawMoney = async (
     accountNumber,
-    amount
+    amount,
+    description
 ) => {
 
     const token =
@@ -41,10 +44,11 @@ export const withdrawMoney = async (
 
         `${BASE_URL}/transactions/withdraw`,
 
-        {
-            accountNumber,
-            amount
-        },
+       {
+    accountNumber,
+    amount,
+    description
+},
 
         {
             headers: {
@@ -56,16 +60,17 @@ export const withdrawMoney = async (
     return response.data
 }
 
-export const transferMoney = async (fromAccount, toAccount, amount) => {
+export const transferMoney = async (fromAccount, toAccount, amount, description) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
         `${BASE_URL}/transactions/transfer`,
         {
-            fromAccount,
-            toAccount,
-            amount
-        },
+    fromAccount,
+    toAccount,
+    amount,
+    description
+},
         {
             headers: {
                 Authorization: `Bearer ${token}`

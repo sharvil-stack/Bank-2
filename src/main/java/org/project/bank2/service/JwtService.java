@@ -1,5 +1,6 @@
 package org.project.bank2.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -14,7 +15,7 @@ public class JwtService {
 
     private final String SECRET =
             "mysecretkeymysecretkeymysecretkey12345";
-
+    private static final long EXPIRATION_MS = 1000L * 60 * 60 * 24;
     public String generateToken(String email) {
 
         return Jwts.builder()
@@ -36,18 +37,18 @@ public class JwtService {
 
     public boolean isTokenValid(String token, String email) {
 
-        String username = extractUsername(token);
-
-        return username.equals(email);
+        Claims claims = extractAllClaims(token);
+        boolean notExpired = claims.getExpiration().after(new Date());
+        return claims.getSubject().equals(email) && notExpired;
     }
-
     public String extractUsername(String token) {
-
+        return extractAllClaims(token).getSubject();
+    }
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 }

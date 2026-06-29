@@ -17,4 +17,6 @@ public class UserReqDTO {
     @Size(min = 8, message = "Password must be atleast 8 characteres")
     @NotBlank(message = "Password is required")
     private String password;
+
+    private String role;
 }

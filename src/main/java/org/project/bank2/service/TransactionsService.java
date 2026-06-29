@@ -34,6 +34,9 @@ public class TransactionsService {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private GeminiService geminiService;
+
     public TransactionResDTO deposit(
             String accountNumber,
             BigDecimal amount) {
@@ -65,7 +68,7 @@ public class TransactionsService {
 
     public TransactionResDTO withdraw(
             String accountNumber,
-            BigDecimal amount) {
+            BigDecimal amount, String description) {
         BankAccount bankAccount = getOwnedAccount(accountNumber);
         validateAccountActive(bankAccount);
         if(bankAccount.getBalance().compareTo(amount) < 0) {
@@ -88,7 +91,12 @@ public class TransactionsService {
             transactions.setAmount(amount);
             transactions.setType(TransactionType.WITHDRAW);
             transactions.setCreatedAt(LocalDateTime.now());
-            transactions.setDescription("Cash Withdrawal");
+        transactions.setDescription(description);
+
+        String category =
+                geminiService.classifyTransaction(description);
+
+        transactions.setCategory(category);
             Transactions savedTransaction =
                 transactionRepo.save(transactions);
 
@@ -96,7 +104,7 @@ public class TransactionsService {
     }
 
     @Transactional
-    public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
+    public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount, String description) {
         if(amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Amount must be greater than zero!");
         }
@@ -126,15 +134,26 @@ public class TransactionsService {
         transactions.setAmount(amount);
         transactions.setType(TransactionType.TRANSFER_OUT);
         transactions.setCreatedAt(LocalDateTime.now());
-        transactions.setDescription("Transfer to " + reciever.getAccountNumber());
-         transactionRepo.save(transactions);
+        transactions.setDescription(description);
+
+        String category =
+                geminiService.classifyTransaction(description);
+
+        transactions.setCategory(category);
+
+        transactionRepo.save(transactions);
 
         Transactions transactions2 = new Transactions();
         transactions2.setAccount(reciever);
         transactions2.setAmount(amount);
         transactions2.setType(TransactionType.TRANSFER_IN);
         transactions2.setCreatedAt(LocalDateTime.now());
-        transactions2.setDescription("Transferred from " + sender.getAccountNumber());
+        transactions2.setDescription(
+                "Transferred from " + sender.getAccountNumber()
+        );
+
+        transactions2.setCategory("Other");
+
         transactionRepo.save(transactions2);
 
     }
@@ -212,6 +231,7 @@ public class TransactionsService {
         dto.setType(transaction.getType().name());
         dto.setDescription(transaction.getDescription());
         dto.setCreatedAt(transaction.getCreatedAt());
+        dto.setCategory(transaction.getCategory());
 
         return dto;
     }
