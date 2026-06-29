@@ -41,7 +41,8 @@ public class TransactionsController {
         return ResponseEntity.ok(
                 transactionsService.withdraw(
                         dto.getAccountNumber(),
-                        dto.getAmount()
+                        dto.getAmount(),
+                        dto.getDescription()
                 )
         );
     }
@@ -53,7 +54,8 @@ public class TransactionsController {
         transactionsService.transfer(
                 dto.getFromAccount(),
                 dto.getToAccount(),
-                dto.getAmount()
+                dto.getAmount(),
+                dto.getDescription()
         );
 
         return ResponseEntity.ok("Transfer successful");

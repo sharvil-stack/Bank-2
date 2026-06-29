@@ -1,8 +1,11 @@
 package org.project.bank2.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.project.bank2.ai.GeminiRequest;
 import org.project.bank2.dto.ai.AiChatRequestDTO;
 import org.project.bank2.dto.ai.AiChatTurnDTO;
+import org.project.bank2.enums.TransactionType;
 import org.project.bank2.model.BankAccount;
 import org.project.bank2.model.Transactions;
 import org.project.bank2.repo.BankAccountRepo;
@@ -13,10 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.project.bank2.model.User;
 import org.springframework.stereotype.Service;
-
+import org.project.bank2.dto.ai.SpendingSummaryDTO;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AiAssistantService {
@@ -138,6 +144,81 @@ public class AiAssistantService {
         ));
 
         return geminiService.getCompletion(systemPrompt, conversation);
+    }
+
+    private static final List<String> SPENDING_CATEGORIES = List.of(
+            "Food", "Shopping", "Education", "Transport", "Entertainment", "Healthcare", "Other"
+    );
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public SpendingSummaryDTO getSpendingSummary() {
+
+        User user = getCurrentUser();
+        List<BankAccount> accounts = bankAccountRepo.findByUserId(user.getId());
+
+        List<Transactions> spendingTransactions = accounts.stream()
+                .flatMap(account -> transactionRepo
+                        .findByAccountAccountNumber(account.getAccountNumber())
+                        .stream())
+                .filter(tx -> tx.getType() == TransactionType.WITHDRAW
+                        || tx.getType() == TransactionType.TRANSFER_OUT)
+                .collect(Collectors.toList());
+
+        Map<String, Double> emptyResult = SPENDING_CATEGORIES.stream()
+                .collect(Collectors.toMap(c -> c, c -> 0.0, (a, b) -> a, LinkedHashMap::new));
+
+        if (spendingTransactions.isEmpty()) {
+            return new SpendingSummaryDTO(emptyResult);
+        }
+
+        StringBuilder txList = new StringBuilder();
+        for (Transactions tx : spendingTransactions) {
+            txList.append("- amount: ").append(tx.getAmount())
+                    .append(", description: \"")
+                    .append(tx.getDescription() == null ? "" : tx.getDescription())
+                    .append("\"\n");
+        }
+
+        String systemPrompt = """
+                You are a transaction categorization engine for Bank2, a banking application.
+                You will be given a list of spending transactions (withdrawals and outgoing transfers), each with an amount and a free-text description.
+ 
+                Categorize each transaction into exactly one of these categories: %s
+ 
+                Use the description to infer the most likely category. If a description is empty, generic, or does not clearly match any category, place it under "Other".
+ 
+                Sum the amounts per category and respond with ONLY a single valid JSON object, no markdown, no code fences, no explanation, in this exact shape:
+                {"Food": 0, "Shopping": 0, "Education": 0, "Transport": 0, "Entertainment": 0, "Healthcare": 0, "Other": 0}
+ 
+                Every category key listed above must be present in the JSON, using 0 for categories with no matching transactions.
+                """.formatted(String.join(", ", SPENDING_CATEGORIES));
+
+        String userPrompt = "Here are the transactions to categorize:\n" + txList;
+
+        String raw = geminiService.getCompletion(systemPrompt, userPrompt);
+        String cleaned = raw.trim()
+                .replaceAll("^```json", "")
+                .replaceAll("^```", "")
+                .replaceAll("```$", "")
+                .trim();
+
+        try {
+            Map<String, Double> parsed = OBJECT_MAPPER.readValue(
+                    cleaned, new TypeReference<Map<String, Double>>() {});
+
+            Map<String, Double> result = new LinkedHashMap<>(emptyResult);
+            for (String category : SPENDING_CATEGORIES) {
+                if (parsed.containsKey(category) && parsed.get(category) != null) {
+                    result.put(category, parsed.get(category));
+                }
+            }
+            return new SpendingSummaryDTO(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new SpendingSummaryDTO(emptyResult);
+        }
     }
 
     private String maskAccountNumber(String accountNumber) {
