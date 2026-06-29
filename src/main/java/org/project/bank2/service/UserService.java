@@ -80,8 +80,15 @@ public class UserService {
         user.setLastName(updatedUser.getLastName());
         user.setEmail(updatedUser.getEmail());
 
-        if(user.getPassword() != null)
-            user.setPassword(user.getPassword());
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+
+
+        if (updatedUser.getRole() != null && !updatedUser.getRole().isBlank()) {
+            user.setRole(updatedUser.getRole());
+        }
 
         User savedUser = userRepo.save(user);
 
