@@ -29,7 +29,6 @@ const Dashboard = () => {
   const [transactions,    setTransactions]     = useState({})   // per-account panel
   const [allTransactions, setAllTransactions]  = useState([])   // full history for SpendingSummary
  
-  // ── Summary strip stats ──────────────────────────────────────────────────────
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0)
  
   const totalDeposits = allTransactions
@@ -44,9 +43,7 @@ const Dashboard = () => {
     .filter(t => t.type === 'TRANSFER_OUT')
     .reduce((sum, t) => sum + Number(t.amount), 0)
  
-  // ── Fetch complete transaction history across all accounts ───────────────────
-  // Uses getAllTransactionsByAccount (GET /transactions/{accountNumber}) so that
-  // SpendingSummary sees every transaction, not just the recent 10.
+ 
   const fetchAllTransactionsForSummary = async (loadedAccounts) => {
     try {
       const results = await Promise.all(
@@ -73,7 +70,6 @@ const Dashboard = () => {
     fetchAccounts()
   }, [])
  
-  // ── Transaction handlers ─────────────────────────────────────────────────────
   const handleDeposit = async (accountNumber) => {
     try {
       setLoading(true)
@@ -146,7 +142,6 @@ const Dashboard = () => {
     navigate('/')
   }
  
-  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="dashboard-container">
  
@@ -155,7 +150,6 @@ const Dashboard = () => {
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
  
-      {/* ── Summary Stats Strip ── */}
       <div className="summary-stats-card">
         <div className="stat-block">
           <span className="stat-label">Total Balance</span>
@@ -175,18 +169,11 @@ const Dashboard = () => {
         </div>
       </div>
  
-      {/* ── Two Column Body ── */}
       <div className="dashboard-body">
  
-        {/* Left: Spending summary + Accounts */}
         <div className="dashboard-left">
  
-          {/*
-            SpendingSummary is a pure presentational component.
-            It receives the full transaction history from state and reads
-            transaction.category (set by Gemini at write time, stored in DB).
-            No API call, no keyword matching happens inside SpendingSummary.
-          */}
+          
           <SpendingSummary transactions={allTransactions} />
  
           <div className="section-header">
@@ -329,7 +316,6 @@ const Dashboard = () => {
           </div>
         </div>
  
-        {/* Right: AI Assistant */}
         <div className="dashboard-right">
           <AiAssistant />
         </div>
