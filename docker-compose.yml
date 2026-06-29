@@ -1,0 +1,34 @@
+services:
+
+  db:
+    image: postgres:15-alpine
+    container_name: finova-db
+    environment:
+      POSTGRES_DB: finova
+      POSTGRES_USER: finova_user
+      POSTGRES_PASSWORD: finova_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - finova_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finova_user -d finova"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: finova-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/finova?sslmode=disable
+      DB_USERNAME: finova_user
+      DB_PASSWORD: finova_pass
+    depends_on:
+      db:
+        condition: service_healthy   # wait until postgres is actually ready
+
+volumes:
+  finova_data:
